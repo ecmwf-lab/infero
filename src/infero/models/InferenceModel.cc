@@ -67,8 +67,6 @@ void InferenceModel::infer(linalg::TensorFloat& tIn, linalg::TensorFloat& tOut, 
     eckit::linalg::TensorFloat input_tensor;
 
     if (tIn.layout()==eckit::linalg::TensorFloat::Layout::ColMajor) {
-        Log::info() << "Input Tensor has right-layout, but left-layout is needed. "
-                    << "Transforming to left.." << std::endl;
         input_tensor = tIn.transformColMajorToRowMajor();
     } else {
 
@@ -116,10 +114,6 @@ void InferenceModel::infer_mimo(std::vector<eckit::linalg::TensorFloat*> &tIn, s
     eckit::Timing t_start(statistics_.timer());
     for (int i = 0; i < inputTensors.size(); ++i) {
         if (inputTensors[i]->layout() == eckit::linalg::TensorFloat::Layout::ColMajor) {
-
-            Log::info() << i << "-th Input Tensor has right-layout, "
-                        << "but left-layout is needed. Transforming to left.." << std::endl;
-
             temporaryCopies.emplace_back(new eckit::linalg::TensorFloat(inputTensors[i]->transformColMajorToRowMajor()));
             inputTensors[i] = temporaryCopies.back().get();
         }
@@ -128,7 +122,6 @@ void InferenceModel::infer_mimo(std::vector<eckit::linalg::TensorFloat*> &tIn, s
 
     // do the actual inference..
     eckit::Timing start_infer(statistics_.timer());
-    Log::info() << "doing inference.." << std::endl;
     infer_mimo_impl(inputTensors, input_names, tOut, output_names);
     statistics_.inferenceTiming_ += eckit::Timing{statistics_.timer()} - start_infer;
 
